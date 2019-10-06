@@ -1,0 +1,3 @@
+[submodule "mixiva"]
+	path = mixiva
+	url = https://github.com/onolab-tmu/mixiva.git
