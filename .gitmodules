@@ -1,6 +1,6 @@
 [submodule "mixiva"]
 	path = mixiva
-	url = https://github.com/onolab-tmu/mixiva.git
+	url = git@github.com:onolab-tmu/mixiva.git
 [submodule "bsseval"]
 	path = bsseval
 	url = https://github.com/fakufaku/bsseval.git
