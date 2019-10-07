@@ -13,10 +13,23 @@ from samples.generate_samples import sampling, wav_read_center
 twodsqtwo = 2.0 / np.sqrt(2)
 inv_sq_2 = 1.0 / np.sqrt(2)
 
-# The source locations
-source_0 = np.array([1.0, 1.5, 1.75])
-source_1_delta = np.array([2 * inv_sq_2, 2 * inv_sq_2, -0.02])
-source_2_delta = np.array([4 * inv_sq_2, 4 * inv_sq_2, -0.02])
+# The source locations (0., 90, 180, then 165 degrees)
+center = np.array([[4.5, 2.1, 1.7]]).T
+source_angles = np.array([0., np.pi / 2, np.pi, np.pi - np.pi / 12])
+source_distance = 1.5
+S = np.array([np.cos(source_angles), np.sin(source_angles), [-0.03, 0.01, 0.02, 0.02]])
+S[:2, :] *= source_distance
+S += center
+n_sources = S.shape[1] - 1
+
+# the mic locations
+mic_angles = np.array([0., np.pi / 2., np.pi])
+mic_delta = 0.02
+R = np.array([np.cos(mic_angles), np.sin(mic_angles), [0., 0., 0.]])
+n_mics = R.shape[1]
+radius = 0.5 * mic_delta / np.sin(np.pi / n_mics)
+R[:2, :] *= radius
+R += center
 
 # The move vector of source 2
 move_vector = np.array([1.5, 0, 0])
@@ -24,7 +37,7 @@ move_vector = np.array([1.5, 0, 0])
 
 if __name__ == "__main__":
 
-    model_choices = ["gauss", "laplace"]
+    model_choices = ["laplace", "gauss"]
 
     parser = argparse.ArgumentParser(
         description="Experiment where one source moves in the middle of the experiment"
@@ -62,54 +75,33 @@ if __name__ == "__main__":
 
     # Create the room
     room_dim = [10, 6, 3.5]
-    room = pra.ShoeBox(room_dim, fs=16000, absorption=0.1, max_order=5)
-
-    # with sources
-    sources = [
-        source_0,
-        source_0 + source_2_delta,
-        source_0 + source_2_delta + move_vector,
-    ]
+    room = pra.ShoeBox(room_dim, fs=16000, absorption=0.45, max_order=8)
 
     # Prepare the audio
-    audio_sources = sampling(2, len(sources) - 1, "samples/metadata.json")
+    audio_sources = sampling(2, n_sources, "samples/metadata.json")
     audio_1 = wav_read_center(audio_sources[0])
     audio_2 = wav_read_center(audio_sources[0])
     audio = np.zeros(
-        (len(sources), audio_1.shape[1] + audio_2.shape[1]), dtype=audio_1.dtype
+        (n_sources + 1, audio_1.shape[1] + audio_2.shape[1]), dtype=audio_1.dtype
     )
     t_move = audio_1.shape[1]
-    audio[[0, 1], :t_move] = audio_1
-    audio[[0, 2], t_move:] = audio_2
+    audio[[0, 1, 2], :t_move] = audio_1
+    audio[[0, 1, 3], t_move:] = audio_2
 
-    for loc, signal in zip(sources, audio):
+    for loc, signal in zip(S.T, audio):
         room.add_source(loc, signal=signal)
 
     # add the mic array
-    mic_array = pra.MicrophoneArray(
-        np.vstack(
-            (
-                pra.linear_2D_array(
-                    source_0[:2]
-                    + np.array([4 * inv_sq_2, -2 * inv_sq_2]),
-                    len(sources) - 1,
-                    np.pi / 4.0,
-                    0.02,
-                ),
-                (source_0[2] - 0.01) * np.ones(len(sources) - 1),
-            )
-        ),
-        room.fs,
-    )
+    mic_array = pra.MicrophoneArray(R, room.fs)
     room.add_microphone_array(mic_array)
 
     # Simulate
     cb_kwargs = {
         "ref_mic": ref_mic,
         "sinr": 20,
-        "n_tgt": len(sources),
-        "n_src": len(sources),
-        "tgt_std": np.array([1.0, inv_sq_2, inv_sq_2]),
+        "n_tgt": n_sources + 1,
+        "n_src": n_sources + 1,
+        "tgt_std": np.array([1.0, 1.0, inv_sq_2, inv_sq_2]),
     }
     premix = room.simulate(
         return_premix=True,
@@ -121,7 +113,7 @@ if __name__ == "__main__":
     def convergence_callback(Y, epoch, X, SDR, SIR, part):
         Y = Y.copy()
 
-        if epoch % 5 != 0:
+        if epoch % 2 != 0:
             return
 
         # projection back
