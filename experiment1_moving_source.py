@@ -67,7 +67,6 @@ if __name__ == "__main__":
     # with sources
     sources = [
         source_0,
-        source_0 + source_1_delta,
         source_0 + source_2_delta,
         source_0 + source_2_delta + move_vector,
     ]
@@ -80,8 +79,8 @@ if __name__ == "__main__":
         (len(sources), audio_1.shape[1] + audio_2.shape[1]), dtype=audio_1.dtype
     )
     t_move = audio_1.shape[1]
-    audio[[0, 1, 2], :t_move] = audio_1
-    audio[[0, 1, 3], t_move:] = audio_2
+    audio[[0, 1], :t_move] = audio_1
+    audio[[0, 2], t_move:] = audio_2
 
     for loc, signal in zip(sources, audio):
         room.add_source(loc, signal=signal)
@@ -92,7 +91,6 @@ if __name__ == "__main__":
             (
                 pra.linear_2D_array(
                     source_0[:2]
-                    + source_1_delta[:2]
                     + np.array([4 * inv_sq_2, -2 * inv_sq_2]),
                     len(sources) - 1,
                     np.pi / 4.0,
@@ -111,7 +109,7 @@ if __name__ == "__main__":
         "sinr": 20,
         "n_tgt": len(sources),
         "n_src": len(sources),
-        "tgt_std": np.array([1.0, 1.0, inv_sq_2, inv_sq_2]),
+        "tgt_std": np.array([1.0, inv_sq_2, inv_sq_2]),
     }
     premix = room.simulate(
         return_premix=True,
