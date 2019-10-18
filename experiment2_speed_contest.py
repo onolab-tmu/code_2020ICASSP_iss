@@ -11,8 +11,8 @@ from samples.generate_samples import sampling, wav_read_center
 
 # Simulation parameters
 config = {
-    "n_repeat": 1,
-    "seed": 840_808,
+    "n_repeat": 100,
+    "seed": 840808,
     "snr": 30,
     "n_sources_list": [2, 3, 4, 6, 8, 10],
     "algorithms": {
@@ -47,6 +47,7 @@ if __name__ == "__main__":
     ref_mic = config["separation_params"]["ref_mic"]
 
     for room_id, file_list in enumerate(audio_files):
+        print(room_id)
 
         audio = wav_read_center(file_list)
 
@@ -59,6 +60,8 @@ if __name__ == "__main__":
                 "rt60": rt60,
                 "id": room_id,
                 "samples": file_list,
+                "n_samples": premix.shape[2],
+                "fs": room.fs,
             }
         )
 
@@ -73,6 +76,7 @@ if __name__ == "__main__":
             mix += noise_std * np.random.randn(*mix.shape)
             ref = premix[:n_sources, ref_mic, :]
 
+            """
             # Measure SDR/SIR at input
             sdr0, isr0, sir0, sar0, perm0 = bss_eval(
                 ref[:, :, None],
@@ -152,3 +156,4 @@ if __name__ == "__main__":
             # Save to file regularly
             with open(config["output_file"], "w") as f:
                 json.dump(sim_results, f)
+            """
