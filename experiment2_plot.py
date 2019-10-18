@@ -103,10 +103,32 @@ if __name__ == "__main__":
             ]
         )
 
+    # Reorganize the data in the dataframe for easier plotting with seaborn
     df_melt = df.melt(id_vars=["Algorithm", "Channels"], var_name="Metric")
 
+    # Set the properties with seaborn
+    sns.set(
+        style="whitegrid",
+        context="paper",
+        font_scale=0.75,
+        rc={
+            "figure.figsize": (3.35, 2),
+            "lines.linewidth": 1.0,
+            # 'font.family': 'sans-serif',
+            # 'font.sans-serif': [u'Helvetica'],
+            # 'text.usetex': False,
+        },
+    )
+
     # Figure SDR/SIR
+    aspect = 0.9
+    width = 3.35
+    n_plot_row = 2
+    height = (width / n_plot_row) / aspect
+
     fn = os.path.join(args.out, f"experiment2_metrics.pdf")
+
+    fig = plt.figure()
     g1 = sns.catplot(
         kind="box",
         data=df_melt,
@@ -116,32 +138,59 @@ if __name__ == "__main__":
         col="Metric",
         col_order=["\u0394SDR [dB]", "\u0394SIR [dB]"],
         hue="Algorithm",
+        aspect=aspect,
+        height=height,
+        whis=np.inf,
+        legend_out=False,
+        legend=False,
     )
+    g1.set_titles(col_template="{col_name}", row_template="")
+    # sns.despine(offset=10, trim=True)
     sns.despine(offset=10, trim=False, left=True, bottom=True)
-    plt.tight_layout(pad=0.5)
-    plt.savefig(fn, bbox_inches="tight")
+
+    # left_ax = g1.facet_axis(0, 1)
+    # leg = fig.legend(
+    #   [left_ax],
+    leg = plt.legend(
+        title="Algorithms",
+        frameon=True,
+        framealpha=0.85,
+        # fontsize="x-small",
+        loc="upper right",
+        # bbox_to_anchor=[1.5, 1.0],
+    )
+    leg.get_frame().set_linewidth(0.2)
+    all_artists = [leg]
+
+    g1.facet_axis(0, 0).set_ylabel("Improvement [dB]")
+
+    plt.savefig(fn, bbox_extra_artists=all_artists, bbox_inches="tight")
     plt.close()
 
     # Figure Runtime
     fn = os.path.join(args.out, f"experiment2_runtime.pdf")
-    g1 = sns.catplot(
-        kind="point",
-        data=df_melt,
-        x="# Microphones",
+    ax = sns.lineplot(
+        data=df_melt[df_melt["Metric"] == "Runtime [s]"],
+        x="Channels",
         y="value",
-        col="Metric",
-        col_order=["Runtime [s]"],
         hue="Algorithm",
+        style="Algorithm",
+        markers=True,
+        dashes=False,
     )
-    # g1.fig.get_axes()[0].set_yscale('log')
+    leg = plt.legend()
+    leg.get_frame().set_linewidth(0.2)
+    ax.yaxis.grid("off")
+    ax.grid(False, axis="x")
+    # sns.despine(offset=10, trim=True)
     sns.despine(offset=10, trim=False, left=True, bottom=True)
-    plt.tight_layout(pad=0.1)
+    plt.ylabel("Runtime [s]")
     plt.savefig(fn, bbox_inches="tight")
     plt.close()
 
     # Figure for evaluation time (bss_eval)
     fn = os.path.join(args.out, f"experiment2_evaltime.pdf")
-    g1 = sns.catplot(
+    g2 = sns.catplot(
         kind="point",
         data=df_melt,
         x="Channels",
@@ -153,7 +202,7 @@ if __name__ == "__main__":
     plt.tight_layout(pad=0.1)
     plt.savefig(fn, bbox_inches="tight")
     plt.close()
-    
+
     # Histogram of RT60
     plt.figure(figsize=(3.35, 1.8))
     plt.hist(rt60 * 1000.0)
@@ -165,4 +214,3 @@ if __name__ == "__main__":
     fig_fn = os.path.join(args.out, f"rt60_hist.pdf")
     plt.savefig(fig_fn, bbox_inches="tight")
     plt.close()
-
