@@ -40,7 +40,7 @@ if __name__ == "__main__":
     if not os.path.exists(args.out):
         os.mkdir(args.out)
 
-    algo_dict = {"auxiva_laplace": "AuxIVA", "mixiva_laplace": "MixIVA"}
+    algo_dict = {"auxiva_laplace": "AuxIVA-IP", "mixiva_laplace": "AuxIVA-ISS (new)"}
 
     df = pd.DataFrame(
         columns=[
@@ -152,12 +152,12 @@ if __name__ == "__main__":
     # leg = fig.legend(
     #   [left_ax],
     leg = plt.legend(
-        title="Algorithms",
+        title="Algorithm",
         frameon=True,
         framealpha=0.85,
         # fontsize="x-small",
         loc="upper right",
-        # bbox_to_anchor=[1.5, 1.0],
+        bbox_to_anchor=[1.08, 1.07],
     )
     leg.get_frame().set_linewidth(0.2)
     all_artists = [leg]
