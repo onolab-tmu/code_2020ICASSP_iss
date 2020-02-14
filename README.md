@@ -1,5 +1,5 @@
-Code ICASSP 2020: Mixing matrix updates
-=======================================
+Fast and stable blind source separation with rank-1 updates
+===========================================================
 
 Install
 -------

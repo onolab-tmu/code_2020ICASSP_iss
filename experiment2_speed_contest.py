@@ -6,7 +6,7 @@ import numpy as np
 import pyroomacoustics as pra
 from room_builder import random_room_builder
 from bsseval.bsseval.metrics import bss_eval
-from mixiva.mixiva import auxiva_cpp, mixiva_cpp
+from mixiva.piva import auxiva, mixiva
 from samples.generate_samples import sampling, wav_read_center
 
 # Simulation parameters
@@ -103,12 +103,12 @@ if __name__ == "__main__":
                 t1 = time.perf_counter()
 
                 if details["name"] == "auxiva":
-                    Y = auxiva_cpp(
-                        X, proj_back=False, n_iter=n_iter, **details["kwargs"]
+                    Y = auxiva(
+                        X, proj_back=False, n_iter=n_iter, backend="cpp", **details["kwargs"]
                     )
                 elif details["name"] == "mixiva":
-                    Y = mixiva_cpp(
-                        X, proj_back=False, n_iter=n_iter, **details["kwargs"]
+                    Y = mixiva(
+                        X, proj_back=False, n_iter=n_iter, backend="cpp", **details["kwargs"]
                     )
 
                 t2 = time.perf_counter()
@@ -148,8 +148,14 @@ if __name__ == "__main__":
                     }
                 )
 
+                # compute time per second of signal and iteration
+                t_signal = mix.shape[1] / room.fs
+                sep_time_unit_ms = 1000 * sep_time / t_signal / n_iter
+
                 print(
-                    f"{room_id} {n_sources} {algo} {np.mean(sdr):.2f} {sep_time:.3f} {eval_time:.3f}"
+                        f"{room_id} {n_sources} {algo} {np.mean(sdr):.2f} "
+                        f"{sep_time_unit_ms:.3f} [ms / s / iteration] (Total: "
+                        f"{sep_time:.3f}) {eval_time:.3f}"
                 )
 
             # Save to file regularly
