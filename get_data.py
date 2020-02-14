@@ -30,9 +30,12 @@ samples_dir = "./samples"
 
 def get_data():
     if os.path.exists(samples_dir):
-        print("The samples directory " f"{samples_dir}" " seems to exist already. Delete if re-download is needed.")
+        print(
+            f"The samples directory {samples_dir} seems to "
+            f"exist already. Delete if re-download is needed."
+        )
     else:
-        print("Downloading the samples... ", end="")
+        print("Downloading the samples... ", end="", flush=True)
         download_uncompress(url_data, temp_dir)
         # change the directory name to the desired one
         dl_dir = os.listdir(temp_dir)[0]
@@ -41,5 +44,7 @@ def get_data():
         print("done.")
 
 
+get_data()
+
 if __name__ == "__main__":
-    get_data()
+    pass

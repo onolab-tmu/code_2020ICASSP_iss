@@ -1,5 +1,5 @@
 [submodule "mixiva"]
-	path = mixiva
+	path = piva
 	url = git@github.com:onolab-tmu/mixiva.git
 [submodule "bsseval"]
 	path = bsseval
