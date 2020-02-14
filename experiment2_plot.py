@@ -153,8 +153,12 @@ if __name__ == "__main__":
         legend=False,
     )
     g1.set_titles(col_template="{col_name}", row_template="")
+    g1.set(ylim=[-3, 24])
     # sns.despine(offset=10, trim=True)
     sns.despine(offset=10, trim=False, left=True, bottom=True)
+
+    # g1.facet_axis(0, 0).set(clip_on=False)
+    # g1.facet_axis(0, 1).set(clip_on=False)
 
     # left_ax = g1.facet_axis(0, 1)
     # leg = fig.legend(
