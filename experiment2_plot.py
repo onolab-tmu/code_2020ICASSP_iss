@@ -23,6 +23,7 @@ if __name__ == "__main__":
     # Read in the data
     all_records = []
     room_info = None
+    config = None
     for fn in args.files:
         print(fn)
         with open(fn, "r") as f:
@@ -31,6 +32,9 @@ if __name__ == "__main__":
 
         if room_info is None:
             room_info = sim_results["room_info"]
+
+        if config is None:
+            config = sim_results["config"]
 
     # Compute the duration of all signals use
     t_signals = [r["n_samples"] / r["fs"] for r in room_info]
@@ -50,7 +54,7 @@ if __name__ == "__main__":
             "SIR Raw [dB]",
             "\u0394SDR [dB]",
             "\u0394SIR [dB]",
-            "Runtime [s]",
+            "Runtime per Iteration [ms]",
             "Evaltime [s]",
         ]
     )
@@ -84,7 +88,11 @@ if __name__ == "__main__":
 
         if "runtime" in record:
             ts = t_signals[record["room_id"]]
-            runtime = record["runtime"] / ts
+            n_iter = (
+                config["separation_params"]["n_iter_multiplier"] * record["n_sources"]
+            )
+            runtime = record["runtime"] / ts / n_iter
+            runtime *= 1000  # make milliseconds
         else:
             runtime = np.nan
 
@@ -97,7 +105,7 @@ if __name__ == "__main__":
                     "SIR Raw [dB]": sir_raw,
                     "\u0394SDR [dB]": d_sdr,
                     "\u0394SIR [dB]": d_sir,
-                    "Runtime [s]": runtime,
+                    "Runtime per Iteration [ms]": runtime,
                     "Evaltime [s]": evaltime,
                 }
             ]
@@ -170,7 +178,7 @@ if __name__ == "__main__":
     # Figure Runtime
     fn = os.path.join(args.out, f"experiment2_runtime.pdf")
     ax = sns.lineplot(
-        data=df_melt[df_melt["Metric"] == "Runtime [s]"],
+        data=df_melt[df_melt["Metric"] == "Runtime per Iteration [ms]"],
         x="Channels",
         y="value",
         hue="Algorithm",
@@ -184,7 +192,7 @@ if __name__ == "__main__":
     ax.grid(False, axis="x")
     # sns.despine(offset=10, trim=True)
     sns.despine(offset=10, trim=False, left=True, bottom=True)
-    plt.ylabel("Runtime [s]")
+    plt.ylabel("Runtime per Iteration [ms]")
     plt.savefig(fn, bbox_inches="tight")
     plt.close()
 
@@ -205,6 +213,7 @@ if __name__ == "__main__":
 
     # Histogram of RT60
     plt.figure(figsize=(3.35, 1.8))
+    plt.figure(figsize=(2.5, 1.2))
     plt.hist(rt60 * 1000.0)
     plt.xlabel("RT60 [ms]")
     plt.ylabel("Frequency")
