@@ -134,8 +134,6 @@ if __name__ == "__main__":
     n_plot_row = 2
     height = (width / n_plot_row) / aspect
 
-    fn = os.path.join(args.out, f"experiment2_metrics.pdf")
-
     fig = plt.figure()
     g1 = sns.catplot(
         kind="box",
@@ -176,11 +174,12 @@ if __name__ == "__main__":
 
     g1.facet_axis(0, 0).set_ylabel("Improvement [dB]")
 
-    plt.savefig(fn, bbox_extra_artists=all_artists, bbox_inches="tight")
+    for ext in ["pdf", "png"]:
+        fn = os.path.join(args.out, f"experiment2_metrics.{ext}")
+        plt.savefig(fn, bbox_extra_artists=all_artists, bbox_inches="tight")
     plt.close()
 
     # Figure Runtime
-    fn = os.path.join(args.out, f"experiment2_runtime.pdf")
     ax = sns.lineplot(
         data=df_melt[df_melt["Metric"] == "Runtime per Iteration [ms]"],
         x="Channels",
@@ -197,11 +196,13 @@ if __name__ == "__main__":
     # sns.despine(offset=10, trim=True)
     sns.despine(offset=10, trim=False, left=True, bottom=True)
     plt.ylabel("Runtime per Iteration [ms]")
-    plt.savefig(fn, bbox_inches="tight")
+
+    for ext in ["pdf", "png"]:
+        fn = os.path.join(args.out, f"experiment2_runtime.{ext}")
+        plt.savefig(fn, bbox_inches="tight")
     plt.close()
 
     # Figure for evaluation time (bss_eval)
-    fn = os.path.join(args.out, f"experiment2_evaltime.pdf")
     g2 = sns.catplot(
         kind="point",
         data=df_melt,
@@ -212,7 +213,10 @@ if __name__ == "__main__":
     )
     sns.despine(offset=10, trim=False, left=True, bottom=True)
     plt.tight_layout(pad=0.1)
-    plt.savefig(fn, bbox_inches="tight")
+
+    for ext in ["pdf", "png"]:
+        fn = os.path.join(args.out, f"experiment2_evaltime.{ext}")
+        plt.savefig(fn, bbox_inches="tight")
     plt.close()
 
     # Histogram of RT60
@@ -224,6 +228,7 @@ if __name__ == "__main__":
     sns.despine(offset=10, trim=False, left=True, bottom=True)
     # plt.gca().xaxis.set_major_locator(MaxNLocator(integer=True))
     # plt.gca().yaxis.set_major_locator(MaxNLocator(integer=True))
-    fig_fn = os.path.join(args.out, f"rt60_hist.pdf")
-    plt.savefig(fig_fn, bbox_inches="tight")
+    for ext in ["pdf", "png"]:
+        fig_fn = os.path.join(args.out, f"rt60_hist.{ext}")
+        plt.savefig(fig_fn, bbox_inches="tight")
     plt.close()
