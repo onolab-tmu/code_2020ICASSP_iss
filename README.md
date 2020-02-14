@@ -37,6 +37,8 @@ Install
 Run Experiments
 ---------------
 
+    conda activate piva
+
     # Run the simulations
     python ./experiment_metrics_speed.py
     python ./experiment_speed_11_17.py
