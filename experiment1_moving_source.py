@@ -110,11 +110,8 @@ if __name__ == "__main__":
     )
 
     # Separation Performance Tracking
-    def convergence_callback(Y, epoch, X, SDR, SIR, part):
+    def convergence_callback(Y, epoch, X, SDR, SIR, permutation, part):
         Y = Y.copy()
-
-        if epoch % 2 != 0:
-            return
 
         # projection back
         z = pra.bss.projection_back(Y, X[:, :, ref_mic])
@@ -138,11 +135,14 @@ if __name__ == "__main__":
 
         SDR.append(sdr.tolist())
         SIR.append(sir.tolist())
+        permutation.append(perm.tolist())
 
     sdr_auxiva = []
     sir_auxiva = []
+    perm_auxiva = []
     sdr_mixiva = []
     sir_mixiva = []
+    perm_mixiva = []
 
     # Split the two halfs
     part1 = room.mic_array.signals[:, :t_move]
@@ -154,7 +154,7 @@ if __name__ == "__main__":
 
     # Separate the first half
     def cb_a_1(Y, epoch):
-        convergence_callback(Y, epoch, X1, sdr_auxiva, sir_auxiva, 1)
+        convergence_callback(Y, epoch, X1, sdr_auxiva, sir_auxiva, perm_auxiva, 1)
 
     Y1_auxiva, W_auxiva = auxiva(
         X1,
@@ -166,7 +166,7 @@ if __name__ == "__main__":
     )
 
     def cb_m_1(Y, epoch):
-        convergence_callback(Y, epoch, X1, sdr_mixiva, sir_mixiva, 1)
+        convergence_callback(Y, epoch, X1, sdr_mixiva, sir_mixiva, perm_mixiva, 1)
 
     Y1_mixiva, W_mixiva = mixiva(
         X1,
@@ -179,7 +179,7 @@ if __name__ == "__main__":
 
     # Separate the second half
     def cb_a_2(Y, epoch):
-        convergence_callback(Y, epoch, X2, sdr_auxiva, sir_auxiva, 2)
+        convergence_callback(Y, epoch, X2, sdr_auxiva, sir_auxiva, perm_auxiva, 2)
 
     Y2_auxiva = auxiva(
         X2,
@@ -188,10 +188,11 @@ if __name__ == "__main__":
         proj_back=False,
         W0=W_auxiva,
         callback=cb_a_2,
+        single_source=perm_auxiva[-1][-1],
     )
 
     def cb_m_2(Y, epoch):
-        convergence_callback(Y, epoch, X2, sdr_mixiva, sir_mixiva, 2)
+        convergence_callback(Y, epoch, X2, sdr_mixiva, sir_mixiva, perm_mixiva, 2)
 
     Y2_mixiva = mixiva(
         X2,
@@ -200,6 +201,7 @@ if __name__ == "__main__":
         proj_back=False,
         W0=W_mixiva,
         callback=cb_m_2,
+        single_source=perm_mixiva[-1][-1],
     )
 
     # Save the data
