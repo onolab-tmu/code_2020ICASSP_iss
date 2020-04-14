@@ -5,11 +5,11 @@ import time
 
 import numpy as np
 import pyroomacoustics as pra
-from room_builder import random_room_builder
-from bsseval.bsseval.metrics import bss_eval
-from piva.piva import auxiva, mixiva
 
+from bsseval.bsseval.metrics import bss_eval
 from get_data import samples_dir
+from piva.piva import auxiva, auxiva_iss
+from room_builder import random_room_builder
 from samples.generate_samples import sampling, wav_read_center
 
 # Simulation parameters
@@ -20,7 +20,7 @@ config = {
     "n_sources_list": [11, 12, 13, 14, 15, 16, 17],
     "algorithms": {
         "auxiva_laplace": {"name": "auxiva", "kwargs": {"model": "laplace"}},
-        "mixiva_laplace": {"name": "mixiva", "kwargs": {"model": "laplace"}},
+        "auxiva_iss_laplace": {"name": "auxiva_iss", "kwargs": {"model": "laplace"}},
     },
     "separation_params": {"ref_mic": 0, "n_iter_multiplier": 10},
     "stft_params": {"n_fft": 4096, "hop": 2048, "win": "hamming"},
@@ -105,8 +105,8 @@ if __name__ == "__main__":
                         backend="cpp",
                         **details["kwargs"],
                     )
-                elif details["name"] == "mixiva":
-                    Y = mixiva(
+                elif details["name"] == "auxiva_iss":
+                    Y = auxiva_iss(
                         X,
                         proj_back=False,
                         n_iter=n_iter,
@@ -133,7 +133,7 @@ if __name__ == "__main__":
 
                 print(
                     f"{room_id} {n_sources} {algo} {sep_time_unit_ms:.3f} "
-                    "[ms*iteration] (Total: {sep_time:.3f})"
+                    f"[ms*iteration] (Total: {sep_time:.3f})"
                 )
 
             # Save to file regularly

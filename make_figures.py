@@ -44,7 +44,10 @@ if __name__ == "__main__":
     if not os.path.exists(args.out):
         os.mkdir(args.out)
 
-    algo_dict = {"auxiva_laplace": "AuxIVA-IP", "mixiva_laplace": "AuxIVA-ISS (new)"}
+    algo_dict = {
+        "auxiva_laplace": "AuxIVA-IP",
+        "auxiva_iss_laplace": "AuxIVA-ISS (new)",
+    }
 
     df = pd.DataFrame(
         columns=[
