@@ -1,6 +1,6 @@
 [submodule "piva"]
 	path = piva
-	url = git@github.com:fakufaku/piva.git
+	url = https://github.com/fakufaku/piva.git
 [submodule "bsseval"]
 	path = bsseval
 	url = https://github.com/fakufaku/bsseval.git
