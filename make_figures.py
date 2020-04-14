@@ -47,6 +47,7 @@ if __name__ == "__main__":
     algo_dict = {
         "auxiva_laplace": "AuxIVA-IP",
         "auxiva_iss_laplace": "AuxIVA-ISS (new)",
+        "mixiva_laplace": "AuxIVA-ISS (new)",
     }
 
     df = pd.DataFrame(
