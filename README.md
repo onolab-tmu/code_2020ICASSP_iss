@@ -27,6 +27,8 @@ Authors
 Install
 -------
 
+We use [anaconda](https://www.anaconda.com/distribution/) to setup the Python environment.
+
     git clone --recursive <url>
     cd piva
     conda env create -f environment.yml
@@ -37,6 +39,9 @@ Install
 Run Experiments
 ---------------
 
+The two experiments presented in the paper can be run by the following steps.
+This produces two files `./experiment_metrics_speed_results.json` `./experiment_speed_11_17_results.json` that are later used to produce the plots.
+
     conda activate piva
 
     # Run the simulations
@@ -45,3 +50,10 @@ Run Experiments
 
     # Plot the results
     python ./make_figures.py ./experiment_metrics_speed_results.json ./experiment_speed_11_17_results.json
+
+The two simulation output data files produced for the figures in the paper were kept in the `sim_results` folder.
+
+License
+-------
+
+The code in this repository is released under the [MIT license](https://opensource.org/licenses/MIT).
